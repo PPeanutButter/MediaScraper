@@ -43,4 +43,4 @@ options:
 
 **编译之前可以修改proxy默认值省去每次加上**
 
-终端运行`pyinstaller -F .\tmdb.spec`, 并将可执行文件添加到环境变量，或者下载编译好的~~for Windows 64~~和`for raspberry arm64 linux`
+终端运行`pyinstaller -F .\tmdb.spec`, 并将可执行文件添加到环境变量
