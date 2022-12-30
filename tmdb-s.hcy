@@ -1,5 +1,5 @@
-GET /panrunqiu/https://www.themoviedb.org/search/trending?query= HTTP/1.0
-Host: 119.8.96.115:8081
+GET /search/trending?query= HTTP/2
+Host: www.themoviedb.org
 accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
 accept-encoding: none
 accept-language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6,zh-TW;q=0.5,ca;q=0.4
