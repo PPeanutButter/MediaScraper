@@ -50,7 +50,7 @@ def save(url, proxy):
     h = BeautifulSoup(html, 'html.parser')
     selects = h.select_one('.header_poster_wrapper')
     title = selects.select_one('h2').text.strip().replace('\n', '')
-    networks = h.select_one(".networks").select_one('img').attrs['src']
+    networks = h.select_one(".networks").select_one('img').attrs['src'][:-3]+"png"
     facts = [i.text.strip().replace('\n', '') for i in selects.select_one('.facts').contents if isinstance(i, Tag)]
     certification = facts[0]
     genres, runtime = facts[-2:]
