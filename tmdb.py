@@ -47,8 +47,10 @@ def save(url, proxy):
     post = re.search(r"/t/p/w1920_and_h800_multi_faces/(.*\.jpg)", html).group(1)
     cover = re.search(r"/t/p/w600_and_h900_bestv2/.*\.jpg", html).group(0)
     html = HCYRequest(proxy + url, 'GET', base_path('tmdb.hcy')).request().text
-    selects = BeautifulSoup(html, 'html.parser').select_one('.header_poster_wrapper')
+    h = BeautifulSoup(html, 'html.parser')
+    selects = h.select_one('.header_poster_wrapper')
     title = selects.select_one('h2').text.strip().replace('\n', '')
+    networks = h.select_one(".networks").select_one('img').attrs['src']
     facts = [i.text.strip().replace('\n', '') for i in selects.select_one('.facts').contents if isinstance(i, Tag)]
     certification = facts[0]
     genres, runtime = facts[-2:]
@@ -64,6 +66,9 @@ def save(url, proxy):
     with open('.cover', 'wb') as f:
         f.write(HCYRequest(f"{proxy}https://www.themoviedb.org{cover}", 'GET', base_path('tmdb.hcy')).request().content)
         print('saving .cover')
+    with open('.network', 'wb') as f:
+        f.write(HCYRequest(f"{proxy}https://www.themoviedb.org{networks}", 'GET', base_path('tmdb.hcy')).request().content)
+        print('saving .network')
     with open('.info', 'w', encoding='utf-8') as f:
         f.write(json.dumps(dict(
             title=title,
