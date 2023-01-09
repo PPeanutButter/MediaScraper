@@ -1,4 +1,5 @@
 import json
+import os.path
 import re
 import argparse
 from os import path
@@ -24,6 +25,9 @@ def search(key, proxy):
             else:
                 return _suggest['original_title']
 
+    if key == "./":
+        key = os.path.basename(os.getcwd())
+        print("using folder name:", key)
     hcy = build_request_from_hcy(base_path('tmdb-s.hcy'))
     hcy.url = proxy + hcy.url
     hcy.params['query'] = key
@@ -74,7 +78,8 @@ def save(url, proxy, type):
         networks = h.select_one(".networks").select_one('img').attrs['src'][:-3].replace("/h30/", "/h60/") + "png"
         with open('.network', 'wb') as f:
             print('saving .network')
-            f.write(HCYRequest(f"{proxy}https://www.themoviedb.org{networks}", 'GET', base_path('tmdb.hcy')).request().content)
+            f.write(HCYRequest(f"{proxy}https://www.themoviedb.org{networks}", 'GET',
+                               base_path('tmdb.hcy')).request().content)
 
     with open('.info', 'w', encoding='utf-8') as f:
         print('saving .info')
