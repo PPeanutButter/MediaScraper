@@ -30,16 +30,18 @@ def search(key, proxy):
     r = hcy.request().json()
     index = 0
     search_result = []
+    type_result = []
     for suggest in r['results']:
         if isinstance(suggest, dict) and suggest['media_type'] in ['movie', 'tv']:
             search_result.append(f'https://www.themoviedb.org/{suggest["media_type"]}/{suggest["id"]}')
+            type_result.append(suggest["media_type"])
             print(f'{index}\t{"TV-Shows" if suggest["media_type"] == "tv" else "Movie"}\t{_get_name(suggest)}')
             index += 1
     select = int(input("> "))
-    save(search_result[select], proxy)
+    save(search_result[select], proxy, type_result[select])
 
 
-def save(url, proxy):
+def save(url, proxy, type):
     print("Get info from", url, "using proxy", proxy if proxy else None)
     hcy = HCYRequest(proxy + url, 'GET', base_path('tmdb.hcy'))
     hcy.super_headers = {"accept-language": "en-US"}
@@ -50,7 +52,6 @@ def save(url, proxy):
     h = BeautifulSoup(html, 'html.parser')
     selects = h.select_one('.header_poster_wrapper')
     title = selects.select_one('h2').text.strip().replace('\n', '')
-    networks = h.select_one(".networks").select_one('img').attrs['src'][:-3].replace("/h30/", "/h60/")+"png"
     facts = [i.text.strip().replace('\n', '') for i in selects.select_one('.facts').contents if isinstance(i, Tag)]
     certification = facts[0]
     genres, runtime = facts[-2:]
@@ -59,17 +60,24 @@ def save(url, proxy):
         else "暂无介绍"
     overview = header_info.select_one('.overview').text.strip().replace('\n', '')
     user_score_chart = float(selects.select_one('.user_score_chart').attrs['data-percent']).__int__()
+
     with open('.post', 'wb') as f:
+        print('saving .post')
         f.write(HCYRequest(f"{proxy}https://www.themoviedb.org/t/p/w1920_and_h1080_multi_faces/{post}", 'GET',
                            base_path('tmdb.hcy')).request().content)
-        print('saving .post')
+
     with open('.cover', 'wb') as f:
-        f.write(HCYRequest(f"{proxy}https://www.themoviedb.org{cover}", 'GET', base_path('tmdb.hcy')).request().content)
         print('saving .cover')
-    with open('.network', 'wb') as f:
-        f.write(HCYRequest(f"{proxy}https://www.themoviedb.org{networks}", 'GET', base_path('tmdb.hcy')).request().content)
-        print('saving .network')
+        f.write(HCYRequest(f"{proxy}https://www.themoviedb.org{cover}", 'GET', base_path('tmdb.hcy')).request().content)
+
+    if type == 'tv':
+        networks = h.select_one(".networks").select_one('img').attrs['src'][:-3].replace("/h30/", "/h60/") + "png"
+        with open('.network', 'wb') as f:
+            print('saving .network')
+            f.write(HCYRequest(f"{proxy}https://www.themoviedb.org{networks}", 'GET', base_path('tmdb.hcy')).request().content)
+
     with open('.info', 'w', encoding='utf-8') as f:
+        print('saving .info')
         f.write(json.dumps(dict(
             title=title,
             certification=certification,
@@ -79,16 +87,13 @@ def save(url, proxy):
             overview=overview,
             user_score_chart=user_score_chart,
             url=url,
+            type=type
         ), ensure_ascii=False, indent=4))
-        print('saving .info')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('param', type=str, help='pass a TMDB detail web url or just a name')
+    parser.add_argument('param', type=str, help='pass a name')
     parser.add_argument('--proxy', type=str, default='', help='http proxy that uses, e.g. http://ip:port/token/')
     args = parser.parse_args()
-    if str(args.param).startswith('http'):
-        save(args.param, args.proxy)
-    else:
-        search(args.param, args.proxy)
+    search(args.param, args.proxy)
