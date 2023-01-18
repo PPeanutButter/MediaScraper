@@ -105,4 +105,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if str(args.param).startswith('http'):
         save(args.param, args.proxy, args.type)
-    search(args.param, args.proxy)
+    else:
+        search(args.param, args.proxy)
