@@ -100,5 +100,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('param', type=str, help='pass a name')
     parser.add_argument('--proxy', type=str, default='', help='http proxy that uses, e.g. http://ip:port/token/')
+    parser.add_argument('--type', type=str, default='tv', help='http proxy that uses, e.g. http://ip:port/token/',
+                        choices=['tv', 'movie'])
     args = parser.parse_args()
+    if str(args.param).startswith('http'):
+        save(args.param, args.proxy, args.type)
     search(args.param, args.proxy)
