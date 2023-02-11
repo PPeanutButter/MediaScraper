@@ -2,6 +2,7 @@ import json
 import os.path
 import re
 import argparse
+import requests
 from os import path
 from HCY import HCYRequest
 from HCY import build_request_from_hcy
@@ -12,7 +13,7 @@ def base_path(file):
     return path.join(path.abspath(path.dirname(__file__)), file)
 
 
-def search(key, proxy):
+def search(key, proxy, apikey):
     def _get_name(_suggest):
         if _suggest["media_type"] == "tv":
             if 'name' in _suggest:
@@ -31,6 +32,7 @@ def search(key, proxy):
     hcy = build_request_from_hcy(base_path('tmdb-s.hcy'))
     hcy.url = proxy + hcy.url
     hcy.params['query'] = key
+    hcy.params['api_key'] = apikey
     r = hcy.request().json()
     index = 0
     search_result = []
@@ -100,10 +102,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('param', type=str, help='pass a name')
     parser.add_argument('--proxy', type=str, default='', help='http proxy that uses, e.g. http://ip:port/token/')
+    parser.add_argument('--key', type=str, default='', help='your api key, apply from https://developers.themoviedb.org/3/')
     parser.add_argument('--type', type=str, default='tv', help='tv or movie',
                         choices=['tv', 'movie'])
     args = parser.parse_args()
     if str(args.param).startswith('http'):
         save(args.param, args.proxy, args.type)
     else:
-        search(args.param, args.proxy)
+        search(args.param, args.proxy, args.key)
